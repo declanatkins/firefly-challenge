@@ -1,9 +1,11 @@
 FROM bde2020/spark-submit:3.3.0-hadoop3.3
 
-ENV SPARK_APPLICATION_PYTHON_LOCATION /app/wordcount.py
+ARG SCRIPT_PATH=wordcount.py
+
+ENV SPARK_APPLICATION_PYTHON_LOCATION "/app/${SCRIPT_PATH}"
 ENV SPARK_MASTER_NAME "spark"
 
-RUN apk add zlib-dev jpeg-dev gcc musl-dev python3-devi
+RUN apk add zlib-dev jpeg-dev gcc musl-dev python3-dev
 
 RUN pip3 install --upgrade pip
 
