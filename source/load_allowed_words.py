@@ -31,6 +31,8 @@ def main():
     spark_session = SparkSession.builder.appName("LoadAllowedWords").getOrCreate()
     lines = spark_session.read.text(args.allowed_words_file).rdd.map(lambda r: r[0])
     words = lines.filter(is_valid_word)
+    words = lines.map(lambda word: word.lower())
+    words = words.distinct()
 
     client = elasticsearch.Elasticsearch([{'host': args.es_host, 'port': args.es_port, 'scheme': 'http'}])
     client.options(ignore_status=[404]).indices.delete(index='allowed-words')

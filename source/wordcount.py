@@ -1,5 +1,6 @@
 import argparse
 from functools import partial
+import json
 from operator import add
 import string
 from pyspark.sql import SparkSession
@@ -37,6 +38,7 @@ def word_tokenize_article(article: str) -> list:
     words = article.split()
     remove_punctuation = str.maketrans('', '', string.punctuation)
     words = [word.translate(remove_punctuation) for word in words]
+    words = [word.lower() for word in words]
     return words
 
 
@@ -56,7 +58,10 @@ def is_valid_word(word: str, es_host: str, es_port: int) -> bool:
     if len(word) <= 2 or not word.isalpha():
         return False
 
-    result = requests.get(f'http://{es_host}:{es_port}/allowed_words/_search?q=word:{word}')
+    result = requests.get(f'http://{es_host}:{es_port}/allowed-words/_search?q=word:{word}')
+
+    if result.status_code != 200:
+        raise ValueError(f'Error querying Elasticsearch: {result.json()}')
     return result.json()['hits']['total']['value'] >= 1
 
 def main():
@@ -77,8 +82,12 @@ def main():
     valid_words = words.filter(is_valid_word_partial)
     word_counts = valid_words.map(lambda word: (word, 1)).reduceByKey(add)
 
-    word_counts.saveAsTextFile('/data/word-counts')
+    # Get the top 10 words
+    top_words = word_counts.map(lambda x: (x[1], x[0])).sortByKey(False).take(10)
+    top_words_dict = {word: count for count, word in top_words}
 
+    print('*** Top 10 words ***')
+    print(json.dumps(top_words_dict, indent=4))
 
 if __name__ == '__main__':
     main()
