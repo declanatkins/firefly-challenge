@@ -7,7 +7,7 @@ echo "Creating Cluster..."
 docker-compose up -d --scale spark-worker=3
 
 echo "Building load words task..."
-docker build -t load_words --build-arg SCRIPT_PATH=load_words.py .
+docker build -t load_words --build-arg SCRIPT_PATH=load_allowed_words.py .
 
 echo "Building word count task..."
 docker build -t word_count .

@@ -29,3 +29,23 @@ On Mac/Linux:
 ```bash
 ./scripts/run_all.sh
 ```
+
+The result obtained was:
+
+```json
+*** Top 10 words ***
+{
+    "the": 44313,
+    "and": 20574,
+    "that": 9963,
+    "for": 9501,
+    "its": 7298,
+    "you": 6930,
+    "with": 6621,
+    "will": 4228,
+    "this": 4114,
+    "but": 4009
+}
+```
+
+Processing took 61 minutes.
