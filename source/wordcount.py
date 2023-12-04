@@ -1,4 +1,6 @@
 import argparse
+from operator import add
+import os
 from pyspark.sql import SparkSession
 import ops
 
@@ -13,4 +15,13 @@ def main():
     args = parser.parse_args()
 
     spark_session = SparkSession.builder.appName("WordCount").getOrCreate()
-    
+    lines = spark_session.read.text(args.allowed_words_file).rdd.map(lambda r: r[0])
+    counts = lines.flatMap(lambda x: x.split(' ')) \
+                  .map(lambda x: (x, 1)) \
+                  .reduceByKey(add)
+    output = counts.collect()
+    for (word, count) in output:
+        print("%s: %i" % (word, count))
+
+if __name__ == '__main__':
+    main()

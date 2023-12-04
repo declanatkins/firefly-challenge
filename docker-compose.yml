@@ -1,4 +1,4 @@
-version: '3'
+version: '3.4'
 services:
   spark:
     image: bde2020/spark-master:3.3.0-hadoop3.3
@@ -10,6 +10,8 @@ services:
       - INIT_DAEMON_STEP=setup_spark
     networks:
       - spark-network
+    volumes:
+      - './data:/data'
   spark-worker:
     image: bde2020/spark-worker:3.3.0-hadoop3.3
     depends_on:
@@ -20,6 +22,8 @@ services:
       - "SPARK_MASTER=spark://spark:7077"
     networks:
       - spark-network
+    volumes:
+      - './data:/data'
   elasticsearch:
     image: docker.io/bitnami/elasticsearch:8
     ports:
@@ -30,4 +34,3 @@ services:
 networks:
   spark-network:
     driver: bridge
-
