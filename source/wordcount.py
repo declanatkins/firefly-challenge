@@ -4,7 +4,7 @@ import json
 from operator import add
 import string
 from pyspark.sql import SparkSession
-from newspaper import Article
+from newspaper import Article, ArticleException
 import requests
 
 
@@ -19,10 +19,13 @@ def load_article_from_url(url: str) -> str:
             str: The article text.
     """
 
-    article = Article(url)
-    article.download()
-    article.parse()
-    return article.text
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text
+    except ArticleException:
+        return ''
 
 
 def word_tokenize_article(article: str) -> list:
@@ -70,7 +73,7 @@ def main():
     parser.add_argument('--es-host', default='elasticsearch', help='Elasticsearch host', type=str)
     parser.add_argument('--es-port', default=9200, help='Elasticsearch port', type=int)
     parser.add_argument('--allowed-words-file', default='/data/words.txt', help='File containing allowed words', type=str)
-    parser.add_argument('--urls-file', default='/data/small-urls', help='File containing urls to process', type=str)
+    parser.add_argument('--urls-file', default='/data/endg-urls', help='File containing urls to process', type=str)
     args = parser.parse_args()
 
     spark_session = SparkSession.builder.appName("WordCount").getOrCreate()
